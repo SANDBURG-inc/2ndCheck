@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>세컨드체크 (2ndCheck) - 중고거래 글 URL 분석 체크리스트</title>
+    
+    <!-- Vercel Analytics for Static HTML -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script src="/_vercel/insights/script.js"></script>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Custom Web Fonts (Pretendard & Inter) -->
@@ -757,7 +764,7 @@
                     alertBox("복사에 실패했습니다. 텍스트를 직접 길게 탭해서 지정해 주세요.");
                 }
             } catch (err) {
-                alertBox("기기 제약으로 인해 자동 복사가 불가합니다. 본문을 직접 복사해 사용해 주세요.");
+                alertBox("기기 제약으로 인해 automatic 복사가 불가합니다. 본문을 직접 복사해 사용해 주세요.");
             }
         }
 
@@ -765,6 +772,11 @@
         function submitFeedback(isPositive) {
             document.getElementById('feedback-initial-panel').classList.add('hidden');
             document.getElementById('feedback-success').classList.remove('hidden');
+            
+            // Track feedback via Vercel Analytics Custom Events (Optional helper)
+            if (window.va) {
+                window.va('event', { name: 'feedback_positive' });
+            }
         }
 
         // Handle negative review collector activation
@@ -784,8 +796,14 @@
 
         // Submit negative reasons
         function submitNegativeFeedback() {
+            const selectedChips = Array.from(document.querySelectorAll('.reason-chip.border-rose-400')).map(c => c.textContent.trim());
             document.getElementById('feedback-negative-collector').classList.add('hidden');
             document.getElementById('feedback-success').classList.remove('hidden');
+            
+            // Track feedback details via Vercel Analytics
+            if (window.va) {
+                window.va('event', { name: 'feedback_negative', data: { reasons: selectedChips.join(',') } });
+            }
         }
 
         // Custom Safe Alert Alternative (No prompt native windows blocks)
