@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세컨드체크 (2ndCheck) - 중고거래 글 URL 분석 체크리스트</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Web Fonts (Pretendard & Inter) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #FF6F0F 0%, #F01D23 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #FF6F0F 0%, #F01D23 100%);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+        /* Custom animations */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="btn-gradient text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg shadow-sm">2</span>
+                <span class="font-extrabold text-xl tracking-tight text-slate-800">세컨드체크<span class="text-[#FF6F0F] text-sm ml-1 font-semibold">2ndCheck</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 animate-pulse">
+                    <span class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></span>MVP 베타
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Landing / Hero Area -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8 sm:py-12">
+        
+        <!-- Hero Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-950 leading-tight sm:leading-none">
+                중고거래 링크만 넣으세요.<br class="sm:hidden">
+                <span class="text-gradient">하자는 AI가 잡습니다.</span>
+            </h1>
+            <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-xl mx-auto font-normal">
+                당근마켓, 번개장터 글 주소만 복사해 오세요. <br class="hidden sm:inline">
+                전문가가 설계한 카테고리별 5대 하자 검증표와 채팅 질문을 즉시 짜드립니다.
+            </p>
+        </div>
+
+        <!-- Live Interative Simulator -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden mb-12">
+            
+            <!-- Simulator Tabs / Inputs -->
+            <div class="p-6 bg-slate-50 border-b border-slate-100">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">AI 안심 진단기</span>
+                    <div class="flex gap-2">
+                        <button id="tab-url-btn" onclick="switchInputMode('url')" class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-slate-800 shadow-sm border border-slate-200">
+                            <i class="fa-solid fa-link mr-1"></i> 링크 주소 분석
+                        </button>
+                        <button id="tab-text-btn" onclick="switchInputMode('text')" class="px-3 py-1 text-xs font-semibold rounded-full text-slate-500 hover:text-slate-800">
+                            <i class="fa-solid fa-align-left mr-1"></i> 본문 직접 붙여넣기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- URL input mode -->
+                <div id="input-url-container" class="space-y-3">
+                    <div class="relative flex items-center">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 text-slate-400"></i>
+                        <input id="url-input" type="text" placeholder="당근마켓 또는 번개장터 주소를 복사해 오세요" 
+                               class="w-full pl-11 pr-24 py-3.5 bg-white text-slate-800 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm sm:text-base shadow-sm">
+                        <button onclick="startAnalysis()" class="absolute right-2 px-4 py-2 text-xs sm:text-sm font-bold text-white btn-gradient hover:opacity-90 active:scale-95 transition-all rounded-xl shadow-sm">
+                            하자 분석 시작
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> 1초 체험 프리셋:</span>
+                        <button onclick="applyPreset('iphone')" class="px-2.5 py-1 text-xs bg-slate-200 hover:bg-orange-100 hover:text-orange-900 text-slate-700 rounded-lg transition font-medium">📱 아이폰 15 프로</button>
+                        <button onclick="applyPreset('bike')" class="px-2.5 py-1 text-xs bg-slate-200 hover:bg-orange-100 hover:text-orange-900 text-slate-700 rounded-lg transition font-medium">🚲 로드 자전거</button>
+                        <button onclick="applyPreset('luxury')" class="px-2.5 py-1 text-xs bg-slate-200 hover:bg-orange-100 hover:text-orange-900 text-slate-700 rounded-lg transition font-medium">👜 샤넬 클래식 백</button>
+                    </div>
+                </div>
+
+                <!-- Text fallback input mode -->
+                <div id="input-text-container" class="hidden space-y-3">
+                    <textarea id="text-input" rows="4" placeholder="당근/번개에서 크롤링이 거부될 때는 본문 전체를 복사해서 여기 붙여넣으세요! AI가 바로 이해합니다."
+                              class="w-full p-4 bg-white text-slate-800 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm shadow-sm"></textarea>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-shield-halved mr-1"></i> 스크래핑 차단 대응 Fallback 모드</span>
+                        <button onclick="startTextAnalysis()" class="px-5 py-2 text-sm font-bold text-white btn-gradient hover:opacity-90 rounded-xl shadow-sm">
+                            텍스트 즉시 분석
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading / AI Processing State -->
+            <div id="loading-state" class="hidden p-12 text-center space-y-6">
+                <div class="relative w-20 h-20 mx-auto">
+                    <!-- Spinning orange ring -->
+                    <div class="absolute inset-0 rounded-full border-4 border-slate-100 border-t-orange-500 animate-spin"></div>
+                    <!-- Central active pulse -->
+                    <div class="absolute inset-4 rounded-full bg-gradient-to-tr from-[#FF6F0F] to-[#F01D23] opacity-75 animate-pulse"></div>
+                </div>
+                <div class="space-y-2">
+                    <h3 id="loading-step-title" class="text-lg font-bold text-slate-800">링크 수집 중...</h3>
+                    <p id="loading-step-desc" class="text-xs text-slate-500 max-w-xs mx-auto">당근마켓/번개장터 안전 데이터 레이어를 파싱하고 있습니다.</p>
+                </div>
+                <!-- Custom micro loading step labels -->
+                <div class="flex justify-center items-center gap-3 text-xs text-slate-400 font-medium">
+                    <span id="step-dot-1" class="flex items-center gap-1 text-orange-500"><i class="fa-solid fa-circle-notch animate-spin"></i> 크롤링</span>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span id="step-dot-2" class="flex items-center gap-1"><i class="fa-solid fa-circle text-[6px]"></i> 카테고리 매칭</span>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span id="step-dot-3" class="flex items-center gap-1"><i class="fa-solid fa-circle text-[6px]"></i> 하자 표 설계</span>
+                </div>
+            </div>
+
+            <!-- Empty state (Initial Showcase) -->
+            <div id="empty-state" class="p-8 text-center space-y-6 bg-slate-50/50">
+                <div class="max-w-md mx-auto py-6">
+                    <div class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#FF6F0F]">
+                        <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                    </div>
+                    <h4 class="text-base font-bold text-slate-800 mb-1">체험해 보실 링크나 프리셋 버튼을 누르세요</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        더치트가 "사기꾼 계정"만 막아줄 때, <strong>세컨드체크</strong>는 물건 자체에 숨은 하자, 미기재 수리 이력, 현장에서 꼭 봐야 할 작동 불량 포인트를 필터링합니다.
+                    </p>
+                </div>
+                <!-- UI Pre-visualization Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-red-500 text-xs font-bold">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 필수 누락 경고
+                        </div>
+                        <p class="text-xs text-slate-600">"배터리 효율 % 가 적혀있지 않습니다. 반드시 구매 일자 및 충전 사이클 확인 필요"</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-[#FF6F0F] text-xs font-bold">
+                            <i class="fa-solid fa-clipboard-list"></i> 5대 동적 검증표
+                        </div>
+                        <p class="text-xs text-slate-600">"화면을 하얗게 켜고 테두리에 붉은 빛 잔상(녹조 현상)이 도는지 먼저 체크하십시오."</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-2 mb-2 text-blue-500 text-xs font-bold">
+                            <i class="fa-solid fa-comment-dots"></i> 채팅 질문 템플릿
+                        </div>
+                        <p class="text-xs text-slate-600">"카피 버튼으로 '혹시 사설 액정 교체 이력이 있는지' 복사해서 대화에 쓰세요."</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real Analyzer Results Container -->
+            <div id="result-state" class="hidden">
+                <!-- Meta Info Header -->
+                <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-orange-50/30 to-rose-50/20">
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span id="res-platform" class="px-2 py-0.5 text-[10px] font-extrabold tracking-wider rounded text-white bg-orange-500">당근</span>
+                            <span id="res-category" class="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded bg-slate-200 text-slate-700">전자기기</span>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-100 text-rose-800">
+                                <i class="fa-solid fa-robot mr-1 text-[8px]"></i> AI 분석 결과
+                            </span>
+                        </div>
+                        <h2 id="res-title" class="text-lg font-bold text-slate-900 leading-snug">아이폰 15 프로 256GB 실버 판매해요</h2>
+                        <div class="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                            <span id="res-price" class="text-slate-800 font-bold text-sm">1,050,000원</span>
+                            <span>•</span>
+                            <span class="text-xs font-normal">정상 거래 추정 범위 내</span>
+                        </div>
+                    </div>
+                    <!-- Reset Button -->
+                    <button onclick="resetAnalyzer()" class="text-xs font-semibold text-slate-500 hover:text-slate-800 hover:underline flex items-center gap-1 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">
+                        <i class="fa-solid fa-rotate-left"></i> 다른 글 분석
+                    </button>
+                </div>
+
+                <!-- Three Main Columns -->
+                <div class="p-6 space-y-6">
+                    
+                    <!-- 1. Red Alert: Missing Info -->
+                    <div class="bg-red-50/70 border border-red-100 rounded-2xl p-4">
+                        <div class="flex items-center gap-2 text-red-700 text-sm font-bold mb-3">
+                            <i class="fa-solid fa-circle-exclamation text-red-500"></i>
+                            판매글에서 누락된 핵심 정보입니다. (꼭 물어보세요!)
+                        </div>
+                        <ul id="res-missing-list" class="space-y-2 pl-6 list-disc text-xs text-slate-700 font-medium">
+                            <!-- JS Inject -->
+                        </ul>
+                    </div>
+
+                    <!-- 2. AI 5-Point Checklist -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-green-500"></i>
+                                만났을 때 확인할 현장 체크리스트 5가지
+                            </h3>
+                            <span class="text-[10px] text-slate-400 font-semibold"><i class="fa-solid fa-lightbulb"></i> 클릭 시 확인 가이드 노출</span>
+                        </div>
+
+                        <!-- Checkbox Group -->
+                        <div id="res-checklist-group" class="space-y-2.5">
+                            <!-- JS Inject -->
+                        </div>
+                    </div>
+
+                    <!-- 3. Pre-made Questions Copy Box -->
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-comments text-[#FF6F0F]"></i>
+                                판매자에게 보낼 질문 템플릿
+                            </span>
+                            <button id="copy-btn" onclick="copyQuestionText()" class="px-2.5 py-1 text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-[#FF6F0F] hover:text-white transition rounded-lg flex items-center gap-1 shadow-sm">
+                                <i class="fa-regular fa-copy"></i> 복사하기
+                            </button>
+                        </div>
+                        <textarea id="res-question-area" readonly class="w-full bg-white text-xs text-slate-700 p-3 rounded-xl border border-slate-100 focus:outline-none resize-none" rows="3"></textarea>
+                        <p class="text-[10px] text-slate-400 mt-1.5"><i class="fa-solid fa-circle-info"></i> 클릭 한 번으로 복사한 뒤, 당근톡/번개톡에 붙여넣기 해보세요.</p>
+                    </div>
+
+                    <!-- 4. Feedback collection -->
+                    <div class="border-t border-slate-100 pt-6">
+                        <div id="feedback-initial-panel" class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-center sm:text-left">
+                                <h4 class="text-xs font-bold text-slate-800">이 체크리스트가 거래 사기/하자 방지에 도움이 되셨나요?</h4>
+                                <p class="text-[10px] text-slate-400">의견을 수집해 더 상세한 정밀 분석 V2를 제공합니다.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="submitFeedback(true)" class="px-4 py-2 text-xs font-bold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition rounded-xl flex items-center gap-1.5">
+                                    <i class="fa-regular fa-thumbs-up"></i> 도움됐어요
+                                </button>
+                                <button onclick="openNegativeFeedback()" class="px-4 py-2 text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition rounded-xl flex items-center gap-1.5">
+                                    <i class="fa-regular fa-thumbs-down"></i> 아쉬워요
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Success Toast -->
+                        <div id="feedback-success" class="hidden text-center py-2 text-green-600 font-bold text-sm bg-green-50/50 rounded-xl">
+                            🎉 피드백이 전송되었습니다. 더 안전한 중고 생태계를 만드는 데 큰 도움이 됩니다!
+                        </div>
+
+                        <!-- Negative feedback reason collector -->
+                        <div id="feedback-negative-collector" class="hidden bg-rose-50/50 p-4 rounded-2xl border border-rose-100 space-y-3 mt-2">
+                            <p class="text-xs font-bold text-rose-900">어떤 점이 아쉬우셨나요? (중복 가능)</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="toggleReason(this)" class="reason-chip px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded-lg font-medium hover:border-rose-400 transition">🔍 카테고리 분류 오작동</button>
+                                <button onclick="toggleReason(this)" class="reason-chip px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded-lg font-medium hover:border-rose-400 transition">🙄 뻔하고 일반적인 내용임</button>
+                                <button onclick="toggleReason(this)" class="reason-chip px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded-lg font-medium hover:border-rose-400 transition">🔴 필수 정보 오진단</button>
+                                <button onclick="toggleReason(this)" class="reason-chip px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded-lg font-medium hover:border-rose-400 transition">💬 보낼 질문 어투 어색함</button>
+                            </div>
+                            <div class="flex justify-end gap-2 pt-1">
+                                <button onclick="submitNegativeFeedback()" class="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition rounded-lg shadow-sm">
+                                    피드백 완료
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Alert Disclaimer banner -->
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/60 flex items-start gap-2.5">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs mt-0.5"></i>
+                        <p class="text-[10px] text-amber-900 leading-relaxed font-normal">
+                            본 분석은 인공지능(AI) 기반의 자동 검출 결과로, 100% 실시간 하자를 증명하지 않으며 최종 판단은 전적으로 사용자의 책임입니다. 거래 사기가 발생하지 않도록 주의하여 신중한 현장 직거래를 권장합니다.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Key Value Proposition / Why Section -->
+        <section class="mb-16 space-y-8">
+            <div class="text-center">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#FF6F0F] bg-orange-50 px-3 py-1.5 rounded-full">안심 중고 생태계의 완성</span>
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 mt-2">사기 조회 서비스로는 부족했던 이유</h2>
+                <p class="text-sm text-slate-500 mt-2">더치트가 먹튀 계정을 조회할 때, 세컨드체크는 물건의 상태 하자를 조회합니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Competitor Card -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+                            <i class="fa-solid fa-user-slash text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800">기존 사기꾼 조회 서비스</h3>
+                            <p class="text-[11px] text-slate-400">사이버캅, 더치트 등</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-2.5 text-xs text-slate-600">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                            <span>이미 신고가 접수된 계정의 먹튀 이력만 조회 가능</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                            <span>새로 개설된 대포통장/세척 계정 사기 방지 불가</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                            <span>물건 자체에 발생한 침수, 파손, 사설 부품 사기 검출 불가</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 2ndCheck Card -->
+                <div class="bg-orange-50/50 border border-orange-200/70 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-[#FF6F0F]">
+                            <i class="fa-solid fa-circle-check text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm text-[#FF6F0F]">세컨드체크 (2ndCheck) AI</h3>
+                            <p class="text-[11px] text-[#FF6F0F]/80">물건 중심 안심 진단</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-2.5 text-xs text-slate-800 font-medium">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-[#FF6F0F] mt-0.5"></i>
+                            <span>인수 전 필수 하자 리스트를 제시하여 현장 사기 예방</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-[#FF6F0F] mt-0.5"></i>
+                            <span>중고글 내용만 파싱하여 "물품 설명 오류/누락" 실시간 판단</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-[#FF6F0F] mt-0.5"></i>
+                            <span>초보자가 절대 물어보기 힘든 전문 유도 심문 질문지 제공</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works (PWA / Mobile Share flow) -->
+        <section class="mb-12 bg-slate-900 text-white rounded-3xl p-6 sm:p-8 space-y-6">
+            <div class="text-center sm:text-left space-y-1">
+                <h3 class="text-xl font-extrabold">당근 앱에서 바로 부르는 공유 사용법</h3>
+                <p class="text-xs text-slate-400">PWA 모바일 웹 최적화로 외부링크 공유가 바로 작동합니다.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left">
+                <!-- Step 1 -->
+                <div class="space-y-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 text-xs font-bold text-white">1</span>
+                    <h4 class="text-xs font-bold text-slate-200">당근/번개에서 게시글 발견</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">이거 살까 말까 고민되는 스마트폰, 명품, 자전거 등 모든 중고 거래 매물을 찾으세요.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="space-y-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 text-xs font-bold text-white">2</span>
+                    <h4 class="text-xs font-bold text-slate-200">우측 상단 '공유하기' 클릭</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">'링크 복사' 또는 '외부 앱 공유' 버튼을 누른 다음 세컨드체크에 주소를 던져주세요.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="space-y-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 text-xs font-bold text-white">3</span>
+                    <h4 class="text-xs font-bold text-slate-200">5대 진단표 즉시 확인</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">자동 파싱된 누락 정보 및 5대 핵심 가이드라인을 확인하고 복사된 대화를 보냅니다.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 border-t border-slate-200/80 py-8 text-center text-xs text-slate-400">
+        <div class="max-w-4xl mx-auto px-4 space-y-3">
+            <div class="flex items-center justify-center gap-1.5 font-bold text-slate-600">
+                <span class="btn-gradient text-white w-5 h-5 rounded flex items-center justify-center text-xs">2</span> 세컨드체크 (2ndCheck)
+            </div>
+            <p>본 서비스는 MVP 컨셉 시뮬레이션입니다. 스크래핑 오류 발생 시Fallback 본문 텍스트 복사 모드를 적극 활용해 주세요.</p>
+            <p class="text-[10px] text-slate-400/80">© 2026 2ndCheck Team. All rights reserved. 본 서비스는 개인 정보 보호 준수 법령을 준수합니다.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive App Script Logic (Vanilla JS) -->
+    <script>
+        // Preset Datasets
+        const PRESET_MOCK_DATA = {
+            iphone: {
+                platform: '당근마켓',
+                category: '전자기기/스마트폰',
+                title: '아이폰 15 프로 256G 실버 초특가로 넘겨요!',
+                price: '1,050,000원',
+                missing_info: [
+                    "배터리 최대 성능 효율(%) 수치가 완전히 누락되었습니다.",
+                    "최초 구매 시기 및 애플케어플러스(보증 연장) 만료일이 확인되지 않습니다.",
+                    "구성품 중 고속 충전 케이블 및 정품 박스가 누락되었는지 확인되지 않았습니다."
+                ],
+                checklist: [
+                    {
+                        point: "사설 수리 이력 및 액정 사설 교체 여부 확인",
+                        tip: "설정 -> 일반 -> 정보 경로로 들어가 '알 수 없는 부품' 알림이 있는지 검사하세요. 액정 사설 교환 시 페이스 ID 및 트루톤(TrueTone)이 비활성화되는 경우가 빈번합니다."
+                    },
+                    {
+                        point: "액정 디스플레이 백화 및 영구 잔상 테스트",
+                        tip: "하얀 화면의 기본 웹브라우저 창을 크게 켠 다음, 화면 모서리에 붉거나 멍이 들었는지, 이전에 실행한 앱 모양으로 하얗게 타버린 잔상(Burn-in)이 있는지 살펴보세요."
+                    },
+                    {
+                        point: "카메라 센서 초점 및 비정상 먼지 혼입 체크",
+                        tip: "카메라 앱을 열고 0.5배 줌부터 3배, 5배 망원까지 돌려가며 흰 벽을 촬영하세요. 렌즈 내부에 유입된 미세 먼지나 초점이 떨리는지 꼭 확인하세요."
+                    },
+                    {
+                        point: "원래 쓰던 계정 '나의 찾기' 로그아웃 완료 여부",
+                        tip: "직거래 현장에서 액티베이션 락을 풀지 않고 돈만 주면 아이폰을 완전히 잠금 해제해 사용할 수 없습니다. 반드시 공장 초기화 여부를 판매자 앞에서 다시 눈으로 확인해야 합니다."
+                    },
+                    {
+                        point: "충전 단자 유격 및 페이스 아이디 구동 여부",
+                        tip: "케이블을 가볍게 흔들었을 때 충전 인식 상태가 깜빡이거나 차단된다면 유격 불량입니다. 페이스아이디가 전면 카메라를 통해 문제 없이 등록되는지 한 번 직접 현장에서 켜보세요."
+                    }
+                ],
+                question: "안녕하세요! 글 올리신 아이폰 15 프로 관심 있어 연락드립니다. 혹시 몇 가지 확인해 주실 수 있나요?\n1. 현재 배터리 효율은 몇 %인지 설정 창 캡처 한번 가능할까요?\n2. 혹시 사설 수리 이력이나 침수된 적은 없었나요?\n3. 박스 구성품 여부와 애플케어 플러스 여부도 답변해 주시면 감사하겠습니다!"
+            },
+            bike: {
+                platform: '번개장터',
+                category: '레저/자전거',
+                title: '로드 바이크 트리곤 하이브리드 입문용 판매',
+                price: '350,000원',
+                missing_info: [
+                    "프레임 사이즈(S/M/L) 정보가 없습니다. 구매자 키에 안 맞을 수 있습니다.",
+                    "자전거 차대번호(정품 증명 및 도난 예방 고유식별 번호)가 적혀있지 않습니다.",
+                    "타이어 및 브레이크 패드 교체 주기(소모품 잔여량) 정보가 누락되었습니다."
+                ],
+                checklist: [
+                    {
+                        point: "자전거 메인 프레임 균열(크랙) 및 가공 부품 미세 크랙 검사",
+                        tip: "바퀴 연결 부위나 프레임 용접 라인 근처에 미세하게 머리카락처럼 갈라진 자국이 있다면 절대 구매 금물입니다. 충격 누적으로 주행 중 프레임이 쪼개져 대형 사고가 날 수 있습니다."
+                    },
+                    {
+                        point: "기어 변속 및 체인 유격 불량 체크",
+                        tip: "뒷바퀴를 가볍게 들어 올린 상태로 페달을 손으로 회전시키며 1단부터 맨 끝단까지 기어 변속이 단번에 탁탁 맞물려 들어가는지, 헛도는 소리가 없는지 관찰하세요."
+                    },
+                    {
+                        point: "휠셋(바퀴 림) 꿀렁임 및 변형 검사",
+                        tip: "바퀴를 부드럽게 고속 회전시켰을 때 좌우로 비틀거리며 중심을 잃고 요동친다면 프레임 림이 휘어 교체 비용이 추가로 왕창 발생합니다."
+                    },
+                    {
+                        point: "브레이크 패드 마모 및 오일 브레이크 압력 저하",
+                        tip: "브레이크 레버를 꽉 쥐었을 때 유격 없이 단단하게 잡히는지 보시고, 브레이크 패드가 닳아 드럼을 다 갉아먹는 쇳소리가 들리지 않는지 체크하세요."
+                    },
+                    {
+                        point: "차대번호 촬영 및 판매자 계정 일치 확인",
+                        tip: "자전거 프레임 하단 비비쉘 등에 양각되어 있는 고유 차대번호를 사진 촬영해 두세요. 도난당한 자전거인지 네이버 카페나 협회 시스템을 통해 추후 소유권을 명확히 지킬 수 있습니다."
+                    }
+                ],
+                question: "안녕하세요! 로드 바이크 문의 드립니다.\n1. 제 키가 몇인데 프레임 사이즈가 어떻게 되는지 궁금합니다.\n2. 혹시 자전거 본체 차대번호 조회가 가능한지, 그리고 구동계 사설 튜닝이나 부품 파손은 없나요?\n3. 구매 일자 및 평소 정비는 언제 마지막으로 하셨는지 궁금합니다!"
+            },
+            luxury: {
+                platform: '당근마켓',
+                category: '명품/가방',
+                title: '정품 샤넬 클래식 미디엄 캐비어 블랙 은장 급처',
+                price: '9,500,000원',
+                missing_info: [
+                    "정품 보증서(게런티 카드), 인보이스 원본 포함 여부가 표기되지 않았습니다.",
+                    "구매 영수증 원본(가격 및 매장명 필터링 없는 정품 인증서)의 사본 양도 가능 여부가 없습니다.",
+                    "샤넬 백 내부의 홀로그램 일련번호 가독성 여부 설명이 부족합니다."
+                ],
+                checklist: [
+                    {
+                        point: "정품 내장칩 / 홀로그램 번호 대조 검사",
+                        tip: "2021년 이후 샤넬 백은 정품 메탈 내장 칩이 탑재되어 있습니다. 가죽 안쪽의 일련번호 각인이 게런티카드 및 인보이스에 적힌 번호와 정확히 100% 일치하는지 확대경으로 매치해야 합니다."
+                    },
+                    {
+                        point: "가죽 표면의 엠보싱(캐비어) 질감과 바느질 대칭 비율",
+                        tip: "정교한 짝퉁의 경우에도 바느질 퀄리티는 다소 허술합니다. 퀼팅 모양이 덮개를 닫았을 때 본체와 한 선으로 끊김 없이 이격 없이 완벽한 대칭을 이루어 이어지는지 한눈에 보셔야 합니다."
+                    },
+                    {
+                        point: "금속 로고 하드웨어 도금 가공 상태",
+                        tip: "샤넬 전면부 'CC' 버클 락 잠금쇠 금속 장식을 살펴보고 로고 끝 마감 처리가 흐리거나, 은장 및 도금이 지나치게 탁한 느낌을 풍긴다면 각 가품 공장 제조 흔적을 의심해야 합니다."
+                    },
+                    {
+                        point: "체인 스트랩 가죽 마감 매듭 꼬임 상태",
+                        tip: "샤넬 가죽 체인은 수작업으로 마감됩니다. 가품의 체인은 가죽 끈 끝부분이 거칠게 잘려나간 마감이거나 접착제 실밥 자국이 흘러나옵니다."
+                    },
+                    {
+                        point: "정품 오프라인 한국 명품 감정원 직거래 동행 가능 여부",
+                        tip: "수백만 원 이상의 명품은 가품 판정 시 100% 보증한다는 계약 합의서를 서로 손글씨로 작성하고, 가능하면 유명 감정원에 물품을 먼저 수령 접수한 뒤 거래할 것을 권장합니다."
+                    }
+                ],
+                question: "안녕하세요! 판매하시는 샤넬 클래식백 구매를 희망해 연락 드려요.\n1. 인보이스 영수증 원본이랑 구성품 백화점 쇼핑백 박스 모두 수령 가능한가요?\n2. 가방 내장칩이랑 구매하신 카드 인증 매칭 사진 간단히 볼 수 있을까요?\n3. 고가 상품인 만큼 한국 명품감정 센터에서 만나 같이 보증 확인 후 거래도 가능하신지 확인 부탁드려요!"
+            }
+        };
+
+        // Tab Switching Logic
+        function switchInputMode(mode) {
+            const urlTab = document.getElementById('tab-url-btn');
+            const textTab = document.getElementById('tab-text-btn');
+            const urlContainer = document.getElementById('input-url-container');
+            const textContainer = document.getElementById('input-text-container');
+
+            if (mode === 'url') {
+                urlTab.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-white text-slate-800 shadow-sm border border-slate-200';
+                textTab.className = 'px-3 py-1 text-xs font-semibold rounded-full text-slate-500 hover:text-slate-800';
+                urlContainer.classList.remove('hidden');
+                textContainer.classList.add('hidden');
+            } else {
+                urlTab.className = 'px-3 py-1 text-xs font-semibold rounded-full text-slate-500 hover:text-slate-800';
+                textTab.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-white text-slate-800 shadow-sm border border-slate-200';
+                urlContainer.classList.add('hidden');
+                textContainer.classList.remove('hidden');
+            }
+        }
+
+        // Apply Demo Preset
+        function applyPreset(presetName) {
+            const mockUrl = {
+                iphone: "https://www.daangn.com/articles/765412390",
+                bike: "https://m.bunjang.co.kr/products/129845372",
+                luxury: "https://www.daangn.com/articles/983012351"
+            };
+            document.getElementById('url-input').value = mockUrl[presetName];
+            
+            // Execute automated demo action
+            startAnalysis(presetName);
+        }
+
+        // Live Simulation Action Logic
+        function startAnalysis(forcedPreset = null) {
+            const urlVal = document.getElementById('url-input').value.trim();
+            if (!urlVal) {
+                alertBox("실제로 거래글 링크를 입력하시거나 혹은 빠른 테스트를 위해 '1초 체험 프리셋' 버튼을 탭해 보세요!");
+                return;
+            }
+
+            // Detect matching preset
+            let presetToUse = 'iphone'; // default general
+            if (forcedPreset) {
+                presetToUse = forcedPreset;
+            } else if (urlVal.includes('bike') || urlVal.includes('bunjang')) {
+                presetToUse = 'bike';
+            } else if (urlVal.includes('luxury') || urlVal.includes('chanel')) {
+                presetToUse = 'luxury';
+            }
+
+            // Hide old sections and start transition loader
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+
+            // Reset Loading Elements
+            updateLoadingStep(1, "당근/번개 거래 페이지 연결 중...", "실시간 ToS 수집 기준을 준수하며 웹 공개 데이터를 로딩하고 있습니다.");
+            
+            // Step 2 Transition (1.2 seconds)
+            setTimeout(() => {
+                updateLoadingStep(2, "AI 카테고리 기계 파싱 중...", "물품 설명 문구를 자연어 처리 엔진으로 읽어 카테고리를 추정하고 있습니다.");
+                setActiveStepDot(2);
+            }, 1000);
+
+            // Step 3 Transition (2.2 seconds)
+            setTimeout(() => {
+                updateLoadingStep(3, "맞춤형 안심 검증표 빌드 중...", "사용자 사기 피드백 데이터 V2와 연계하여 5가지 현장 체크리스트를 정렬합니다.");
+                setActiveStepDot(3);
+            }, 2000);
+
+            // Done and Render Result (3 seconds total loading)
+            setTimeout(() => {
+                renderResultData(PRESET_MOCK_DATA[presetToUse]);
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('result-state').classList.remove('hidden');
+                // Scroll smoothly to output
+                document.getElementById('result-state').scrollIntoView({ behavior: 'smooth' });
+            }, 3000);
+        }
+
+        // Start text fallback parsing
+        function startTextAnalysis() {
+            const textVal = document.getElementById('text-input').value.trim();
+            if (!textVal) {
+                alertBox("본문 텍스트 내용을 입력란에 붙여넣어 주세요!");
+                return;
+            }
+
+            // Use smart keyword matching on pasted text to serve the best preset
+            let presetKey = 'iphone';
+            if (textVal.includes('자전거') || textVal.includes('로드') || textVal.includes('바이크')) {
+                presetKey = 'bike';
+            } else if (textVal.includes('샤넬') || textVal.includes('가방') || textVal.includes('명품') || textVal.includes('인보이스')) {
+                presetKey = 'luxury';
+            }
+
+            // Trigger loading
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+
+            updateLoadingStep(1, "입력 텍스트 구문 분석 중...", "직접 주입한 중고 거래 본문의 텍스트 형태소를 정독하고 있습니다.");
+            
+            setTimeout(() => {
+                updateLoadingStep(2, "핵심 누락 정보 추출 중...", "가죽 상태, 시리얼, 배터리 효율 등 필수 명칭이 존재하지 않는지 대조 중입니다.");
+                setActiveStepDot(2);
+            }, 1000);
+
+            setTimeout(() => {
+                updateLoadingStep(3, "안전 필터 레이어 구성 중...", "도난 장물 여부 및 침수 하자를 미리 예방할 질문 세트를 준비합니다.");
+                setActiveStepDot(3);
+            }, 2000);
+
+            setTimeout(() => {
+                const data = PRESET_MOCK_DATA[presetKey];
+                // Slightly rewrite the render for custom touch
+                data.title = textVal.substring(0, 30) + "...";
+                data.price = "수동 텍스트 분석";
+                renderResultData(data);
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('result-state').classList.remove('hidden');
+                document.getElementById('result-state').scrollIntoView({ behavior: 'smooth' });
+            }, 3000);
+        }
+
+        // Helper Loading Steps
+        function updateLoadingStep(stepNum, title, desc) {
+            document.getElementById('loading-step-title').textContent = title;
+            document.getElementById('loading-step-desc').textContent = desc;
+        }
+
+        function setActiveStepDot(step) {
+            const dot1 = document.getElementById('step-dot-1');
+            const dot2 = document.getElementById('step-dot-2');
+            const dot3 = document.getElementById('step-dot-3');
+
+            if (step === 2) {
+                dot1.className = "flex items-center gap-1 text-slate-400";
+                dot2.className = "flex items-center gap-1 text-orange-500 font-bold";
+            } else if (step === 3) {
+                dot2.className = "flex items-center gap-1 text-slate-400";
+                dot3.className = "flex items-center gap-1 text-orange-500 font-bold";
+            }
+        }
+
+        // Render Result Output inside the Dashboard DOM
+        function renderResultData(data) {
+            // Header Info
+            document.getElementById('res-platform').textContent = data.platform;
+            document.getElementById('res-category').textContent = data.category;
+            document.getElementById('res-title').textContent = data.title;
+            document.getElementById('res-price').textContent = data.price;
+
+            // Missing list
+            const missingList = document.getElementById('res-missing-list');
+            missingList.innerHTML = '';
+            data.missing_info.forEach(info => {
+                const li = document.createElement('li');
+                li.className = "leading-relaxed";
+                li.innerHTML = `<span class="text-red-600 font-extrabold mr-1">[!]</span> ${info}`;
+                missingList.appendChild(li);
+            });
+
+            // Checklist Cards Injection with Accordions
+            const checklistGroup = document.getElementById('res-checklist-group');
+            checklistGroup.innerHTML = '';
+            data.checklist.forEach((item, index) => {
+                const wrapDiv = document.createElement('div');
+                wrapDiv.className = "bg-white border border-slate-200 hover:border-orange-200 transition-colors rounded-xl overflow-hidden";
+                
+                wrapDiv.innerHTML = `
+                    <div class="p-3.5 flex items-start gap-3 cursor-pointer select-none" onclick="toggleChecklistDetails(${index})">
+                        <input type="checkbox" onclick="event.stopPropagation();" class="mt-0.5 h-4.5 w-4.5 rounded text-orange-600 focus:ring-orange-500 border-slate-300">
+                        <div class="flex-grow">
+                            <h4 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-between">
+                                <span>${index + 1}. ${item.point}</span>
+                                <i id="accordion-arrow-${index}" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                            </h4>
+                            <div id="accordion-desc-${index}" class="hidden mt-2 text-xs text-slate-500 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <span class="text-[#FF6F0F] font-bold"><i class="fa-regular fa-lightbulb"></i> 실전 하우투:</span> ${item.tip}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                checklistGroup.appendChild(wrapDiv);
+            });
+
+            // Set Questionnaire content
+            document.getElementById('res-question-area').value = data.question;
+
+            // Reset Feedback UI
+            document.getElementById('feedback-initial-panel').classList.remove('hidden');
+            document.getElementById('feedback-success').classList.add('hidden');
+            document.getElementById('feedback-negative-collector').classList.add('hidden');
+        }
+
+        // Toggle Accordion checklist items
+        function toggleChecklistDetails(index) {
+            const desc = document.getElementById(`accordion-desc-${index}`);
+            const arrow = document.getElementById(`accordion-arrow-${index}`);
+            if (desc.classList.contains('hidden')) {
+                desc.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                desc.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Reset Analyzer to main dashboard
+        function resetAnalyzer() {
+            document.getElementById('url-input').value = '';
+            document.getElementById('text-input').value = '';
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('empty-state').classList.remove('hidden');
+            
+            // Scroll back
+            document.getElementById('empty-state').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Handle copying pre-made questions inside iframe restrictions (reliable fallback)
+        function copyQuestionText() {
+            const textarea = document.getElementById('res-question-area');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // for mobile
+
+            try {
+                const successful = document.execCommand('copy');
+                const btn = document.getElementById('copy-btn');
+                if (successful) {
+                    btn.innerHTML = `<i class="fa-solid fa-check text-green-500"></i> 복사 완료!`;
+                    btn.classList.add('bg-green-50', 'text-green-800', 'border-green-200');
+                    setTimeout(() => {
+                        btn.innerHTML = `<i class="fa-regular fa-copy"></i> 복사하기`;
+                        btn.classList.remove('bg-green-50', 'text-green-800', 'border-green-200');
+                    }, 2000);
+                } else {
+                    alertBox("복사에 실패했습니다. 텍스트를 직접 길게 탭해서 지정해 주세요.");
+                }
+            } catch (err) {
+                alertBox("기기 제약으로 인해 자동 복사가 불가합니다. 본문을 직접 복사해 사용해 주세요.");
+            }
+        }
+
+        // Submit Simple Feedback
+        function submitFeedback(isPositive) {
+            document.getElementById('feedback-initial-panel').classList.add('hidden');
+            document.getElementById('feedback-success').classList.remove('hidden');
+        }
+
+        // Handle negative review collector activation
+        function openNegativeFeedback() {
+            document.getElementById('feedback-initial-panel').classList.add('hidden');
+            document.getElementById('feedback-negative-collector').classList.remove('hidden');
+        }
+
+        // Toggle reason chips
+        function toggleReason(btn) {
+            if (btn.classList.contains('border-rose-400')) {
+                btn.className = "reason-chip px-3 py-1.5 text-xs bg-white text-slate-600 border border-slate-200 rounded-lg font-medium hover:border-rose-400 transition";
+            } else {
+                btn.className = "reason-chip px-3 py-1.5 text-xs bg-rose-50 text-rose-700 border-rose-400 border rounded-lg font-medium transition";
+            }
+        }
+
+        // Submit negative reasons
+        function submitNegativeFeedback() {
+            document.getElementById('feedback-negative-collector').classList.add('hidden');
+            document.getElementById('feedback-success').classList.remove('hidden');
+        }
+
+        // Custom Safe Alert Alternative (No prompt native windows blocks)
+        function alertBox(msg) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = "fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 bg-slate-900 text-white text-xs font-bold rounded-2xl shadow-xl flex items-center gap-2 border border-slate-800 animate-bounce";
+            alertDiv.innerHTML = `<i class="fa-solid fa-circle-info text-orange-500"></i> ${msg}`;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
